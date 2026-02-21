@@ -1,0 +1,71 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  identity-service:
+    build: ./services/identity-service
+    environment:
+      - PORT=4001
+    ports:
+      - "4001:4001"
+
+  catalog-service:
+    build: ./services/catalog-service
+    environment:
+      - PORT=4002
+      - REDIS_URL=${REDIS_URL}
+    depends_on:
+      - redis
+    ports:
+      - "4002:4002"
+
+  payment-service:
+    build: ./services/payment-service
+    environment:
+      - PORT=4004
+    ports:
+      - "4004:4004"
+
+  order-service:
+    build: ./services/order-service
+    environment:
+      - PORT=4003
+      - RABBITMQ_URL=${RABBITMQ_URL}
+      - PAYMENT_SERVICE_URL=${PAYMENT_SERVICE_URL}
+    depends_on:
+      - rabbitmq
+      - payment-service
+    ports:
+      - "4003:4003"
+
+  notification-service:
+    build: ./services/notification-service
+    environment:
+      - PORT=4005
+      - RABBITMQ_URL=${RABBITMQ_URL}
+    depends_on:
+      - rabbitmq
+    ports:
+      - "4005:4005"
+
+  api-gateway:
+    build: ./services/api-gateway
+    environment:
+      - PORT=8080
+      - IDENTITY_SERVICE_URL=${IDENTITY_SERVICE_URL}
+      - CATALOG_SERVICE_URL=${CATALOG_SERVICE_URL}
+      - ORDER_SERVICE_URL=${ORDER_SERVICE_URL}
+    depends_on:
+      - identity-service
+      - catalog-service
+      - order-service
+    ports:
+      - "8080:8080"
