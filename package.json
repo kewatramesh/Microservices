@@ -1,11 +1,11 @@
 {
-  "name": "microservices-reference",
+  "name": "microservices-reference-dotnet",
   "private": true,
   "version": "1.0.0",
+  "description": "Utility scripts for the .NET microservices sample.",
   "scripts": {
     "bootstrap": "bash scripts/bootstrap.sh",
     "up": "docker compose up --build",
-    "down": "docker compose down -v",
-    "lint": "echo 'Add linting tool of your choice'"
+    "down": "docker compose down -v"
   }
 }

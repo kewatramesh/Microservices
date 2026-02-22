@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-for svc in services/*; do
-  if [ -f "$svc/package.json" ]; then
-    echo "Installing dependencies for $svc"
-    (cd "$svc" && npm install)
-  fi
+for project in services/*/*.csproj; do
+  echo "Restoring dependencies for $project"
+  dotnet restore "$project"
 done
