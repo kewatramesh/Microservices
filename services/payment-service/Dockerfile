@@ -1,7 +1,10 @@
-FROM node:20-alpine
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+COPY . ./
+RUN dotnet restore payment-service.csproj
+RUN dotnet publish payment-service.csproj -c Release -o /app/publish
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
-COPY package*.json ./
-RUN npm install --omit=dev
-COPY src ./src
-EXPOSE 4004
-CMD ["npm", "start"]
+COPY --from=build /app/publish .
+ENTRYPOINT ["dotnet", "payment-service.dll"]
